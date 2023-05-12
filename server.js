@@ -53,6 +53,35 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
                 res.status(500).json({ message: 'Error deleting all images', error: error.message });
             }
         });
+        
+        //Serve an image with a specific filename
+        app.get('/image/:filename', async (req, res) => {
+            try {
+                const filename = req.params.filename;
+                const bucket = new GridFSBucket(db);
+        
+                const file = await db.collection('fs.files').findOne({ filename: filename });
+        
+                if (!file) {
+                    res.status(404).json({ message: 'Image not found' });
+                    return;
+                }
+        
+                const contentType = file.contentType || 'application/octet-stream';
+                res.set('Content-Type', contentType);
+        
+                const readStream = bucket.openDownloadStreamByName(filename);
+                readStream.pipe(res);
+        
+                readStream.on('error', (error) => {
+                    console.error('Error streaming image:', error);
+                    res.status(500).json({ message: 'Error streaming image', error: error.message });
+                });
+            } catch (error) {
+                console.error('Error fetching image:', error);
+                res.status(500).json({ message: 'Error fetching image', error: error.message });
+            }
+        });
    
     })
     .catch(err => {
