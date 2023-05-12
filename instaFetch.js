@@ -1,8 +1,7 @@
 const axios = require('axios');
 
-
 async function fetchInstagramAndSaveToGridFS(gfs) {
-    const accessToken = 'IGQVJXNHBuMFctYldqbXlTbVo2QUh1SGRBVzZAYYVJmNTBYVV8zRHBBempyYklRZAVNxMWMwWWZABQXV3R2ktVnhYUzVRd2tON2xmMkI2YVVTcEZAqQm9Ud0E2cXQ2UkEzYkxhcmNZANE9Ib2hVejFBMEE0NAZDZD';
+    const accessToken = process.env.ACCESS_TOKEN;
     const userMedia = await fetchUserRecentMedia(accessToken);
   
     let postNumber = 0;
@@ -38,23 +37,21 @@ async function fetchUserRecentMedia(accessToken) {
     return data;
 }
   
-  async function saveFileToGridFS(url, outputFilename, gfs) {
-    const response = await axios({
+async function saveFileToGridFS(url, outputFilename, gfs) {
+  const response = await axios({
       url,
       method: 'GET',
       responseType: 'stream',
-    });
-  
-    const writeStream = gfs.createWriteStream({
-      filename: outputFilename,
-    });
-  
-    response.data.pipe(writeStream);
-  
-    return new Promise((resolve, reject) => {
-      writeStream.on('close', resolve);
+  });
+
+  const writeStream = gfs.openUploadStream(outputFilename);
+
+  response.data.pipe(writeStream);
+
+  return new Promise((resolve, reject) => {
+      writeStream.on('finish', resolve);
       writeStream.on('error', reject);
-    });
+  });
 }
   
 module.exports = { fetchInstagramAndSaveToGridFS };
@@ -64,8 +61,6 @@ module.exports = { fetchInstagramAndSaveToGridFS };
 // const axios = require('axios');
 // const fs = require('fs');
 // const path = require('path');
-
-// const accessToken = 'IGQVJXNHBuMFctYldqbXlTbVo2QUh1SGRBVzZAYYVJmNTBYVV8zRHBBempyYklRZAVNxMWMwWWZABQXV3R2ktVnhYUzVRd2tON2xmMkI2YVVTcEZAqQm9Ud0E2cXQ2UkEzYkxhcmNZANE9Ib2hVejFBMEE0NAZDZD';
 
 // async function fetchUserInfo(accessToken) {
 //   const response = await axios.get(`https://graph.instagram.com/me?fields=id,username&access_token=${accessToken}`);
