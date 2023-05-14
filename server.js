@@ -1,10 +1,14 @@
 const express = require('express');
+const cors = require("cors");
+
 const mongodb = require('mongodb');
 const { MongoClient, GridFSBucket } = require('mongodb');
 require('dotenv').config();
 const { fetchInstagramAndSaveToGridFS } = require('./instaFetch');
 
 const app = express();
+app.use(cors());
+
 app.use(express.json());
 
 const uri = process.env.MONGO_URI;
@@ -30,16 +34,29 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         });
 
         // Add the new /images endpoint here
+        // app.get('/images', async (req, res) => {
+        //     try {
+        //         const files = await gfs.find({}).toArray();
+        //         const filenames = files.map(file => file.filename);
+        //         res.status(200).json({ filenames });
+        //     } catch (error) {
+        //         console.error('Error fetching image list:', error);
+        //         res.status(500).json({ message: 'Error fetching image list', error: error.message });
+        //     }
+        // });
         app.get('/images', async (req, res) => {
             try {
                 const files = await gfs.find({}).toArray();
-                const filenames = files.map(file => file.filename);
+                const imageFiles = files.filter(file => file.filename.endsWith('.jpg'));
+                const filenames = imageFiles.map(file => file.filename);
                 res.status(200).json({ filenames });
             } catch (error) {
                 console.error('Error fetching image list:', error);
                 res.status(500).json({ message: 'Error fetching image list', error: error.message });
             }
         });
+        
+        
         // Add the new /deleteAllImages endpoint here
         // Add the new /deleteAllImages endpoint here
         app.delete('/deleteAllImages', async (req, res) => {
