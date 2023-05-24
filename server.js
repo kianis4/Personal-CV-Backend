@@ -38,8 +38,8 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         // Endpoint to fetch Instagram data and save to MongoDB
         app.get('/fetchInstagram', async (req, res) => {
             try {
-                const bucket = new GridFSBucket(db);
-                await bucket.drop();  // Delete all old images first
+                // const bucket = new GridFSBucket(db);
+                // await bucket.drop();  // Delete all old images first
 
                 const posts = await fetchInstagramAndSaveToGridFS(gfs);
                 // console.log(posts)
