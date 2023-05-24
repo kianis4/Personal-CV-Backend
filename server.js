@@ -1,69 +1,73 @@
-const express = require('express');
-const cors = require("cors");
+// Including the necessary modules
+const express = require('express');  // Express.js for creating the server
+const cors = require("cors");  // CORS for handling Cross-Origin Requests
 
-const mongodb = require('mongodb');
-const { MongoClient, GridFSBucket } = require('mongodb');
-require('dotenv').config();
-const { fetchInstagramAndSaveToGridFS } = require('./instaFetch');
+const mongodb = require('mongodb');  // MongoDB driver for Node.js
+const { MongoClient, GridFSBucket } = require('mongodb');  // MongoClient for MongoDB connection, GridFSBucket for storing larger files
+require('dotenv').config();  // For reading environment variables
+const { fetchInstagramAndSaveToGridFS } = require('./instaFetch');  // Importing the function to fetch Instagram data and save to MongoDB
 
 const app = express();
-app.use(cors());
+app.use(cors());  // Middleware to enable CORS
 
-app.use(express.json());
+app.use(express.json());  // Middleware to parse JSON bodies
 
-const uri = process.env.MONGO_URI;
+// Connecting to MongoDB
+const uri = process.env.MONGO_URI;  // Get MongoDB connection URI from environment variables
 MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
     .then(client => {
         console.log('Connected to MongoDB');
-        const db = client.db('myDatabase');
-        const gfs = new GridFSBucket(db); // Initialize GridFS
+        const db = client.db('myDatabase');  // Connect to 'myDatabase'
+        const gfs = new GridFSBucket(db);  // Initialize GridFS for storing large files
 
-        app.listen(3000, () => {
+        app.listen(3000, () => {  // Start the server on port 3000
             console.log('Server is running on port 3000');
         });
 
-        // Add the new endpoint to trigger fetchInstagramAndSaveToGridFS function
+        // Endpoint to fetch Instagram data and save to MongoDB
+        // app.get('/fetchInstagram', async (req, res) => {
+        //     try {
+        //         const posts = await fetchInstagramAndSaveToGridFS(gfs);
+        //         console.log(posts)
+        //         res.status(200).json({ message: 'Instagram data fetched and saved successfully!', posts });
+        //     } catch (error) {
+        //         console.error('Error fetching and saving Instagram data:', error);
+        //         res.status(500).json({ message: 'Error fetching and saving Instagram data', error: error.message });
+        //     }
+        // });
+        // Endpoint to fetch Instagram data and save to MongoDB
         app.get('/fetchInstagram', async (req, res) => {
             try {
-                await fetchInstagramAndSaveToGridFS(gfs);
-                res.status(200).json({ message: 'Instagram data fetched and saved successfully!' });
+                const bucket = new GridFSBucket(db);
+                await bucket.drop();  // Delete all old images first
+
+                const posts = await fetchInstagramAndSaveToGridFS(gfs);
+                // console.log(posts)
+                res.status(200).json({ message: 'Instagram data fetched and saved successfully!', posts });
             } catch (error) {
                 console.error('Error fetching and saving Instagram data:', error);
                 res.status(500).json({ message: 'Error fetching and saving Instagram data', error: error.message });
             }
         });
 
-        // Add the new /images endpoint here
-        // app.get('/images', async (req, res) => {
-        //     try {
-        //         const files = await gfs.find({}).toArray();
-        //         const filenames = files.map(file => file.filename);
-        //         res.status(200).json({ filenames });
-        //     } catch (error) {
-        //         console.error('Error fetching image list:', error);
-        //         res.status(500).json({ message: 'Error fetching image list', error: error.message });
-        //     }
-        // });
+        // Endpoint to get list of images stored in MongoDB
         app.get('/images', async (req, res) => {
             try {
-                const files = await gfs.find({}).toArray();
-                const imageFiles = files.filter(file => file.filename.endsWith('.jpg'));
-                const filenames = imageFiles.map(file => file.filename);
+                const files = await gfs.find({}).toArray();  // Find all files
+                const imageFiles = files.filter(file => file.filename.endsWith('.jpg'));  // Filter only images
+                const filenames = imageFiles.map(file => file.filename);  // Map to file names
                 res.status(200).json({ filenames });
             } catch (error) {
                 console.error('Error fetching image list:', error);
                 res.status(500).json({ message: 'Error fetching image list', error: error.message });
             }
         });
-        
-        
-        // Add the new /deleteAllImages endpoint here
-        // Add the new /deleteAllImages endpoint here
+
+        // Endpoint to delete all images stored in MongoDB
         app.delete('/deleteAllImages', async (req, res) => {
             try {
                 const bucket = new GridFSBucket(db);
-                await bucket.drop();
-
+                await bucket.drop();  // Drop the GridFS bucket, effectively deleting all files
                 res.status(200).json({ message: 'All images deleted successfully' });
             } catch (error) {
                 console.error('Error deleting all images:', error);
@@ -71,7 +75,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
             }
         });
         
-        //Serve an image with a specific filename
+        // Endpoint to serve an image with a specific filename
         app.get('/image/:filename', async (req, res) => {
             try {
                 const filename = req.params.filename;
@@ -105,6 +109,7 @@ MongoClient.connect(uri, { useNewUrlParser: true, useUnifiedTopology: true })
         console.error('Error connecting to MongoDB:', err);
     });
 
+// Basic endpoint to check if server is running
 app.get('/', (req, res) => {
     res.status(200).json({ message: 'Server is running!' });
 });
