@@ -32,17 +32,17 @@ async function fetchInstagramAndSaveToGridFS(gfs) {
                     let outputFilenameChild = `${postNumber}_${counter}.jpg`;
                     await saveFileToGridFS(obj.media_url, outputFilenameChild, gfs);
                     if (counter == 1){
-                        post.images.push({ name: outputFilenameChild, status: 'current', imageSrc: `http://3.144.34.140:3000/image/${outputFilenameChild}` });
+                        post.images.push({ name: outputFilenameChild, status: 'current', imageSrc: `http://api.suleyman.io:3000/image/${outputFilenameChild}` });
                     }else{
-                        post.images.push({ name: outputFilenameChild, status: '', imageSrc: `http://3.144.34.140:3000/image/${outputFilenameChild}` });
+                        post.images.push({ name: outputFilenameChild, status: '', imageSrc: `http://api.suleyman.io:3000/image/${outputFilenameChild}` });
                     }
                 } else if (obj.media_type === 'VIDEO') {
                     let outputFilenameChild = `${postNumber}_${counter}.mp4`;
                     await saveFileToGridFS(obj.media_url, outputFilenameChild, gfs);
                     if (counter == 1){
-                        post.images.push({ name: outputFilenameChild, status: 'current', imageSrc: `http://3.144.34.140:3000/image/${outputFilenameChild}` });
+                        post.images.push({ name: outputFilenameChild, status: 'current', imageSrc: `http://api.suleyman.io:3000/image/${outputFilenameChild}` });
                     }else{
-                        post.images.push({ name: outputFilenameChild, status: '', imageSrc: `http://3.144.34.140:3000/image/${outputFilenameChild}` });
+                        post.images.push({ name: outputFilenameChild, status: '', imageSrc: `http://api.suleyman.io:3000/image/${outputFilenameChild}` });
                     }
                 }
             }
