@@ -1,6 +1,8 @@
 // Including the necessary modules
 const express = require('express');  // Express.js for creating the server
 const cors = require("cors");  // CORS for handling Cross-Origin Requests
+const https = require('https');
+const fs = require('fs');
 
 const mongodb = require('mongodb');  // MongoDB driver for Node.js
 const { MongoClient, GridFSBucket } = require('mongodb');  // MongoClient for MongoDB connection, GridFSBucket for storing larger files
