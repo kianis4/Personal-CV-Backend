@@ -35,9 +35,9 @@ async function get_uuid(username) {
     const $ = cheerio.load(html);
 
     // Write the HTML response to a file
-    fs.writeFileSync('response.html', html);
+    // fs.writeFileSync('response.html', html);
 
-    console.log('HTML response saved to response.html');
+    // console.log('HTML response saved to response.html');
 
     // Find the script tag with the "window.chesscom.insights" JavaScript object
     const scriptContent = $('script').map((i, element) => $(element).html()).get().find(content => content.includes('window.chesscom.insights'));
@@ -47,7 +47,7 @@ async function get_uuid(username) {
     const match = uuidRegEx.exec(scriptContent);
     const uuid = match ? match[1] : null;  // If a match is found, match[1] is the captured UUID
 
-    fs.writeFileSync('uuid.html', uuid || '');
+    // fs.writeFileSync('uuid.html', uuid || '');
 
     return uuid;
   } catch (error) {
