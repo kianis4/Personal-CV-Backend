@@ -81,9 +81,9 @@ async function get_insights(uuid){
         const response = await axios.get(insights_url, { headers });
         const data = response.data
         // Write the json response to a file    
-        fs.writeFileSync('insights_data.json', JSON.stringify(data));
+        // fs.writeFileSync('insights_data.json', JSON.stringify(data));
 
-        console.log('Insight data saved in insights_data.json');
+        // console.log('Insight data saved in insights_data.json');
 
         let new_data = {
             overallAccuracy: data.gamesOverview.overallAccuracy,
