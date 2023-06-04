@@ -22,7 +22,7 @@ const { userInformation } = require('./ChessPage/getUserInfo');
 
 const app = express();
 app.use(cors({
-    origin: 'http://localhost:3001',
+    origin: 'https://dwbiekfq3qvye.cloudfront.net',
     methods: ['GET', 'POST'],
     allowedHeaders: ['Content-Type', 'Authorization'],
     credentials: true,
